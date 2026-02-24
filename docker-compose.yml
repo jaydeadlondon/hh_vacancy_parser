@@ -1,0 +1,180 @@
+version: "3.9"
+
+networks:
+  hh-network:
+    driver: bridge
+
+volumes:
+  postgres_data:
+  redis_data:
+  rabbitmq_data:
+
+services:
+
+  # ─── Infrastructure ───────────────────────────────────────
+
+  postgresql:
+    image: postgres:16-alpine
+    container_name: hh-postgresql
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+      POSTGRES_DB: ${POSTGRES_DB}
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    ports:
+      - "5432:5432"
+    networks:
+      - hh-network
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER} -d ${POSTGRES_DB}"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  redis:
+    image: redis:7-alpine
+    container_name: hh-redis
+    restart: unless-stopped
+    command: redis-server --appendonly yes
+    volumes:
+      - redis_data:/data
+    ports:
+      - "6379:6379"
+    networks:
+      - hh-network
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  rabbitmq:
+    image: rabbitmq:3.13-management-alpine
+    container_name: hh-rabbitmq
+    restart: unless-stopped
+    environment:
+      RABBITMQ_DEFAULT_USER: ${RABBITMQ_USER}
+      RABBITMQ_DEFAULT_PASS: ${RABBITMQ_PASSWORD}
+    volumes:
+      - rabbitmq_data:/var/lib/rabbitmq
+    ports:
+      - "5672:5672"
+      - "15672:15672"
+    networks:
+      - hh-network
+    healthcheck:
+      test: ["CMD", "rabbitmq-diagnostics", "ping"]
+      interval: 15s
+      timeout: 10s
+      retries: 5
+
+  # ─── Application Services ─────────────────────────────────
+
+  api-gateway:
+    build:
+      context: ./services/api-gateway
+      dockerfile: Dockerfile
+    container_name: hh-api-gateway
+    restart: unless-stopped
+    env_file:
+      - .env
+    ports:
+      - "8000:8000"
+    networks:
+      - hh-network
+    depends_on:
+      postgresql:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    volumes:
+      - ./services/api-gateway:/app   # hot reload в dev
+    command: uvicorn app.main:app --host 0.0.0.0 --port 8000 --reload
+
+  parser-service:
+    build:
+      context: ./services/parser-service
+      dockerfile: Dockerfile
+    container_name: hh-parser
+    restart: unless-stopped
+    env_file:
+      - .env
+    networks:
+      - hh-network
+    depends_on:
+      postgresql:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+      rabbitmq:
+        condition: service_healthy
+    volumes:
+      - ./services/parser-service:/app
+
+  ai-analyzer:
+    build:
+      context: ./services/ai-analyzer
+      dockerfile: Dockerfile
+    container_name: hh-ai-analyzer
+    restart: unless-stopped
+    env_file:
+      - .env
+    networks:
+      - hh-network
+    depends_on:
+      postgresql:
+        condition: service_healthy
+      rabbitmq:
+        condition: service_healthy
+    volumes:
+      - ./services/ai-analyzer:/app
+
+  notifier-service:
+    build:
+      context: ./services/notifier-service
+      dockerfile: Dockerfile
+    container_name: hh-notifier
+    restart: unless-stopped
+    env_file:
+      - .env
+    networks:
+      - hh-network
+    depends_on:
+      rabbitmq:
+        condition: service_healthy
+    volumes:
+      - ./services/notifier-service:/app
+
+  telegram-bot:
+    build:
+      context: ./services/telegram-bot
+      dockerfile: Dockerfile
+    container_name: hh-telegram-bot
+    restart: unless-stopped
+    env_file:
+      - .env
+    networks:
+      - hh-network
+    depends_on:
+      - api-gateway
+    volumes:
+      - ./services/telegram-bot:/app
+
+  dashboard:
+    build:
+      context: ./services/dashboard
+      dockerfile: Dockerfile
+    container_name: hh-dashboard
+    restart: unless-stopped
+    env_file:
+      - .env
+    ports:
+      - "8501:8501"
+    networks:
+      - hh-network
+    depends_on:
+      - api-gateway
+    volumes:
+      - ./services/dashboard:/app
