@@ -6,7 +6,8 @@ from typing import Optional
 def get_logger(name: str, level: Optional[str] = "INFO") -> logging.Logger:
     logger = logging.getLogger(name)
 
-    if logger.handlers: return logger
+    if logger.handlers:
+        return logger
 
     logger.setLevel(getattr(logging, level.upper(), logging.INFO))
 
