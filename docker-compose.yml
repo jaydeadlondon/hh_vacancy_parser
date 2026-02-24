@@ -104,6 +104,8 @@ services:
     restart: unless-stopped
     env_file:
       - .env
+    environment:
+      - PYTHONPATH=/app:/workspace
     networks:
       - hh-network
     depends_on:
@@ -115,6 +117,8 @@ services:
         condition: service_healthy
     volumes:
       - ./services/parser-service:/app
+      - ./shared:/workspace/shared
+    command: python -m app.worker
 
   ai-analyzer:
     build:

@@ -11,7 +11,7 @@ def get_logger(name: str, level: Optional[str] = "INFO") -> logging.Logger:
 
     logger.setLevel(getattr(logging, level.upper(), logging.INFO))
 
-    handler = logging.StreamHandler(sys.stdout())
+    handler = logging.StreamHandler(sys.stdout)
     handler.setLevel(getattr(logging, level.upper(), logging.INFO))
 
     formatter = logging.Formatter(
