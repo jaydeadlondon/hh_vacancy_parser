@@ -150,13 +150,19 @@ services:
     restart: unless-stopped
     env_file:
       - .env
+    environment:
+      - PYTHONPATH=/app:/workspace
     networks:
       - hh-network
     depends_on:
+      postgresql:
+        condition: service_healthy
       rabbitmq:
         condition: service_healthy
     volumes:
       - ./services/notifier-service:/app
+      - ./shared:/workspace/shared
+    command: python -m app.worker
 
   telegram-bot:
     build:
