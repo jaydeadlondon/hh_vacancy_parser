@@ -172,12 +172,18 @@ services:
     restart: unless-stopped
     env_file:
       - .env
+    environment:
+      - PYTHONPATH=/app:/workspace
+      - API_GATEWAY_URL=http://api-gateway:8000
     networks:
       - hh-network
     depends_on:
       - api-gateway
+      - redis
     volumes:
       - ./services/telegram-bot:/app
+      - ./shared:/workspace/shared
+    command: python -m app.main
 
   dashboard:
     build:

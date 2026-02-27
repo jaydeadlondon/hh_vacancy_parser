@@ -1,18 +1,14 @@
 from contextlib import asynccontextmanager
 from collections.abc import AsyncGenerator
-
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
-
 from app.core.config import settings
-from app.routers import auth, health
+from app.routers import auth, health, users, filters, vacancies
 
 
 @asynccontextmanager
 async def lifespan(app: FastAPI) -> AsyncGenerator[None, None]:
-    """Запуск и остановка приложения"""
     print(f"🚀 {settings.project_name} v{settings.project_version} запущен")
-    print(f"📦 Окружение: {settings.environment}")
     yield
     print("👋 Сервис остановлен")
 
@@ -22,13 +18,11 @@ app = FastAPI(
     version=settings.project_version,
     debug=settings.debug,
     lifespan=lifespan,
-    docs_url="/docs",
-    redoc_url="/redoc",
 )
 
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"] if settings.debug else ["https://yourdomain.com"],
+    allow_origins=["*"] if settings.debug else [],
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
@@ -36,12 +30,11 @@ app.add_middleware(
 
 app.include_router(health.router)
 app.include_router(auth.router, prefix="/api/v1")
+app.include_router(users.router, prefix="/api/v1")
+app.include_router(filters.router, prefix="/api/v1")
+app.include_router(vacancies.router, prefix="/api/v1")
 
 
 @app.get("/", include_in_schema=False)
 async def root():
-    return {
-        "service": settings.project_name,
-        "version": settings.project_version,
-        "docs": "/docs",
-    }
+    return {"service": settings.project_name, "docs": "/docs"}
