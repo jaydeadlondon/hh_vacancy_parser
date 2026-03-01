@@ -1,0 +1,57 @@
+name: CD
+
+on:
+  push:
+    branches: [ main ]
+
+jobs:
+  deploy:
+    name: Deploy to Server
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Deploy via SSH
+        uses: appleboy/ssh-action@v1.0.3
+        with:
+          host: ${{ secrets.SERVER_HOST }}
+          username: ${{ secrets.SERVER_USER }}
+          key: ${{ secrets.SERVER_SSH_KEY }}
+          port: ${{ secrets.SERVER_PORT }}
+          script: |
+            # Переходим в папку проекта
+            cd ${{ secrets.PROJECT_PATH }}
+
+            # Подтягиваем изменения
+            git pull origin main
+
+            # Копируем .env если его нет
+            if [ ! -f .env ]; then
+              cp .env.example .env
+              echo "⚠️  Создан .env из примера — заполни переменные!"
+            fi
+
+            # Пересобираем и перезапускаем сервисы
+            docker compose pull
+            docker compose build --no-cache
+            docker compose up -d
+
+            # Применяем миграции
+            docker compose exec -T api-gateway alembic upgrade head
+
+            # Убираем старые образы
+            docker image prune -f
+
+            echo "✅ Деплой завершён!"
+
+      - name: Notify deployment success
+        if: success()
+        run: |
+          echo "🚀 Деплой успешно завершён на сервере ${{ secrets.SERVER_HOST }}"
+
+      - name: Notify deployment failure  
+        if: failure()
+        run: |
+          echo "❌ Деплой завершился с ошибкой!"

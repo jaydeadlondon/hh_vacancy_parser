@@ -67,7 +67,6 @@ def apply_local_filters(
     if user_filter.max_salary:
         salary = vacancy.get("salary")
         if salary:
-            salary_to = salary.get("to")
             salary_from = salary.get("from")
             if salary_from and salary_from > user_filter.max_salary:
                 return False

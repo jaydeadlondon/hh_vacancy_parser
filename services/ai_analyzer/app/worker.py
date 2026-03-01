@@ -1,15 +1,13 @@
 import asyncio
 import json
 import aio_pika
-from sqlalchemy import exc, select
+from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession, async_sessionmaker, create_async_engine
 from app.analyzer.gigachat_client import GigaChatClient
 from app.analyzer.prompt import build_analysis_prompt
 from app.core.config import settings
 from app.publisher.rabbitmq import RabbitMQPublisher
 from app.services.analysis_saver import mark_analysis_failed, save_analysis
-from shared.models import user_filter
-from shared.models.user import User
 from shared.models.user_filter import UserFilter
 from shared.models.vacancy import Vacancy
 from shared.utils.logger import get_logger

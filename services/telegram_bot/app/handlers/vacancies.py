@@ -4,7 +4,7 @@ from aiogram.fsm.context import FSMContext
 from aiogram.fsm.state import State, StatesGroup
 from aiogram.types import CallbackQuery, Message
 from app.api.client import APIClient
-from app.keyboards.inline import get_back_keyboard, get_main_menu_keyboard
+from app.keyboards.inline import get_back_keyboard
 from shared.utils.logger import get_logger
 
 logger = get_logger(__name__)

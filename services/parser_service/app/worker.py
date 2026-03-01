@@ -57,7 +57,7 @@ class ParserWorker:
         logger.info("🔄 Начинаем цикл парсинга...")
 
         async with self._session_factory() as db:
-            result = await db.execute(select(User).where(User.is_active == True))
+            result = await db.execute(select(User).where(User.is_active.is_(True)))
             users = result.scalars().all()
 
             if not users:
@@ -76,7 +76,7 @@ class ParserWorker:
         result = await db.execute(
             select(UserFilter).where(
                 UserFilter.user_id == user.id,
-                UserFilter.is_active == True,
+                UserFilter.is_active.is_(True),
             )
         )
         filters = result.scalars().all()

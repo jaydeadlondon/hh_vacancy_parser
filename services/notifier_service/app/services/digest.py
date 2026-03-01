@@ -1,9 +1,7 @@
 from datetime import datetime, timezone, timedelta
-from fastapi import status
 from sqlalchemy import select, desc
 from sqlalchemy.ext.asyncio import AsyncSession
 from shared.models.notification import Notification
-from shared.models.user import User
 from shared.models.vacancy import Vacancy
 from shared.models.vacancy_analysis import VacancyAnalysis
 from shared.utils.logger import get_logger

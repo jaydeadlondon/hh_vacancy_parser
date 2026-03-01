@@ -205,9 +205,9 @@ class NotifierWorker:
         async with self._session_factory() as db:
             result = await db.execute(
                 select(User).where(
-                    User.is_active == True,
+                    User.is_active.is_(True),
                     User.telegram_chat_id.isnot(None),
-                )
+                ),
             )
             users = result.scalars().all()
 

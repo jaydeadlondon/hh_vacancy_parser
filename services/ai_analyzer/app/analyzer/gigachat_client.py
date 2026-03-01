@@ -3,7 +3,6 @@ import json
 import re
 from typing import Any
 import httpx
-from pydantic import Json
 from app.core.config import settings
 from shared.utils.logger import get_logger
 

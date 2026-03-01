@@ -1,5 +1,5 @@
 from aiogram import F, Router
-from aiogram.filters import Command, CommandStart
+from aiogram.filters import CommandStart
 from aiogram.fsm.context import FSMContext
 from aiogram.fsm.state import State, StatesGroup
 from aiogram.types import CallbackQuery, Message
@@ -32,7 +32,7 @@ async def cmd_start(message: Message, state: FSMContext) -> None:
 
     if token:
         await message.answer(
-            f"👋 С возвращением!\n\nЧто хочешь сделать?",
+            "👋 С возвращением!\n\nЧто хочешь сделать?",
             reply_markup=get_main_menu_keyboard(),
         )
     else:

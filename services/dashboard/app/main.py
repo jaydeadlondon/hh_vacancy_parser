@@ -288,7 +288,6 @@ def show_vacancies_page() -> None:
 def show_analytics_page() -> None:
     import pandas as pd
     import plotly.express as px
-    import plotly.graph_objects as go
 
     st.title("📊 Аналитика")
 
