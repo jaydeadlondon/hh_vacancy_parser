@@ -13,7 +13,6 @@ from shared.models.user_filter import UserFilter
 
 async def test():
     async with HHClient() as hh:
-
         # Симулируем фильтр пользователя
         mock_filter = UserFilter()
         mock_filter.id = 1

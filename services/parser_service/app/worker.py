@@ -157,8 +157,7 @@ async def main() -> None:
         while True:
             await worker.run_once()
             logger.info(
-                f"😴 Следующий запуск через "
-                f"{settings.parser_interval_seconds} секунд"
+                f"😴 Следующий запуск через {settings.parser_interval_seconds} секунд"
             )
             await asyncio.sleep(settings.parser_interval_seconds)
 

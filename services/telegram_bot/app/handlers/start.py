@@ -105,7 +105,7 @@ async def register_username(message: Message, state: FSMContext) -> None:
     await state.update_data(reg_username=username)
     await state.set_state(RegisterStates.waiting_email)
     await message.answer(
-        f"✅ Имя: <b>{username}</b>\n\n" "Шаг 2/3: Введи email адрес",
+        f"✅ Имя: <b>{username}</b>\n\nШаг 2/3: Введи email адрес",
         parse_mode="HTML",
     )
 
@@ -121,7 +121,7 @@ async def register_email(message: Message, state: FSMContext) -> None:
     await state.update_data(reg_email=email)
     await state.set_state(RegisterStates.waiting_password)
     await message.answer(
-        "Шаг 3/3: Придумай пароль\n" "<i>Минимум 8 символов</i>",
+        "Шаг 3/3: Придумай пароль\n<i>Минимум 8 символов</i>",
         parse_mode="HTML",
     )
 
@@ -168,7 +168,7 @@ async def register_password(message: Message, state: FSMContext) -> None:
         error = result["data"].get("detail", "Неизвестная ошибка")
         await state.set_state(None)
         await message.answer(
-            f"❌ Ошибка регистрации: {error}\n\n" "Попробуй ещё раз /start",
+            f"❌ Ошибка регистрации: {error}\n\nПопробуй ещё раз /start",
         )
 
 
@@ -176,7 +176,7 @@ async def register_password(message: Message, state: FSMContext) -> None:
 async def start_login(callback: CallbackQuery, state: FSMContext) -> None:
     await state.set_state(LoginStates.waiting_username)
     await callback.message.edit_text(
-        "🔑 <b>Вход в аккаунт</b>\n\n" "Введи имя пользователя:",
+        "🔑 <b>Вход в аккаунт</b>\n\nВведи имя пользователя:",
         parse_mode="HTML",
     )
     await callback.answer()
@@ -212,12 +212,12 @@ async def login_password(message: Message, state: FSMContext) -> None:
         )
 
         await message.answer(
-            "✅ <b>Вход выполнен!</b>\n\n" "Что хочешь сделать?",
+            "✅ <b>Вход выполнен!</b>\n\nЧто хочешь сделать?",
             reply_markup=get_main_menu_keyboard(),
             parse_mode="HTML",
         )
     else:
         await state.set_state(None)
         await message.answer(
-            "❌ Неверный логин или пароль.\n" "Попробуй ещё раз /start",
+            "❌ Неверный логин или пароль.\nПопробуй ещё раз /start",
         )

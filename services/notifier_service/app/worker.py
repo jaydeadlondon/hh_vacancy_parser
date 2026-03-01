@@ -93,8 +93,7 @@ class NotifierWorker:
             analysis_id = payload["analysis_id"]
 
             logger.info(
-                f"📨 Получено: vacancy_id={vacancy_id} "
-                f"user_id={user_id} score={score}"
+                f"📨 Получено: vacancy_id={vacancy_id} user_id={user_id} score={score}"
             )
 
             if score >= settings.min_score_for_instant:
@@ -192,7 +191,7 @@ class NotifierWorker:
             wait_seconds = (next_monday - now).total_seconds()
             logger.info(
                 f"📅 Следующий дайджест: {next_monday.strftime('%Y-%m-%d %H:%M')} "
-                f"(через {wait_seconds/3600:.1f} часов)"
+                f"(через {wait_seconds / 3600:.1f} часов)"
             )
 
             await asyncio.sleep(wait_seconds)

@@ -79,7 +79,7 @@ class AIAnalyzerWorker:
             user_id = payload["user_id"]
             filter_id = payload["filter_id"]
 
-            logger.info(f"📨 Получено: vacancy_id={vacancy_id} " f"user_id={user_id}")
+            logger.info(f"📨 Получено: vacancy_id={vacancy_id} user_id={user_id}")
 
             await self._analyze(vacancy_id, user_id, filter_id)
 
