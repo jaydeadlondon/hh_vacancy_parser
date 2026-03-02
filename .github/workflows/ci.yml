@@ -79,13 +79,6 @@ jobs:
           push: false
           tags: hh-telegram-bot:test
 
-      - name: Build dashboard
-        uses: docker/build-push-action@v5
-        with:
-          context: ./services/dashboard
-          push: false
-          tags: hh-dashboard:test
-
   compose-check:
     name: Docker Compose Validate
     runs-on: ubuntu-latest
