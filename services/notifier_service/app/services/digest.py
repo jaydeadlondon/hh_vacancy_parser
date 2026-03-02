@@ -37,7 +37,7 @@ async def get_top_vacancies(
     return [(row.Vacancy, row.VacancyAnalysis) for row in result.all()]
 
 
-async def save_notifications(
+async def save_notification(
     db: AsyncSession,
     user_id: int,
     notification_type: str,

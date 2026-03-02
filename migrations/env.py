@@ -18,20 +18,15 @@ target_metadata = Base.metadata
 
 
 def get_database_url() -> str:
-    """Собираем URL из переменных окружения"""
     user = os.getenv("POSTGRES_USER", "hhparser")
     password = os.getenv("POSTGRES_PASSWORD", "hhparser_password")
-    host = os.getenv("POSTGRES_HOST", "localhost")
+    host = os.getenv("POSTGRES_HOST", "postgresql")
     port = os.getenv("POSTGRES_PORT", "5432")
     db = os.getenv("POSTGRES_DB", "hhparser_db")
     return f"postgresql://{user}:{password}@{host}:{port}/{db}"
 
 
 def run_migrations_offline() -> None:
-    """
-    Offline режим — генерирует SQL без подключения к БД
-    Полезно для генерации скриптов
-    """
     url = get_database_url()
     context.configure(
         url=url,
@@ -39,18 +34,12 @@ def run_migrations_offline() -> None:
         literal_binds=True,
         dialect_opts={"paramstyle": "named"},
         compare_type=True,
-        compare_server_default=True,
     )
-
     with context.begin_transaction():
         context.run_migrations()
 
 
 def run_migrations_online() -> None:
-    """
-    Online режим — реальное подключение к БД
-    Используется при запуске alembic upgrade head
-    """
     configuration = config.get_section(config.config_ini_section, {})
     configuration["sqlalchemy.url"] = get_database_url()
 
@@ -65,9 +54,7 @@ def run_migrations_online() -> None:
             connection=connection,
             target_metadata=target_metadata,
             compare_type=True,
-            compare_server_default=True,
         )
-
         with context.begin_transaction():
             context.run_migrations()
 

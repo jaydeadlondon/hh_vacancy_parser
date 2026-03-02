@@ -1,0 +1,213 @@
+<!DOCTYPE html>
+<html lang="ru" class="dark">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Вакансии — HH Parser</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    colors: {
+                        dark: { 900: '#0f1117', 800: '#1a1d27', 700: '#21263a', 600: '#2d3348' },
+                        accent: { 500: '#6366f1', 600: '#4f46e5', 400: '#818cf8' }
+                    }
+                }
+            }
+        }
+    </script>
+    <link rel="stylesheet" href="css/style.css">
+</head>
+<body class="bg-dark-900 text-gray-100 min-h-screen">
+
+    <!-- Сайдбар -->
+    <aside class="fixed left-0 top-0 h-full w-64 bg-dark-800 border-r border-white border-opacity-5 z-40 flex flex-col">
+
+        <!-- Лого -->
+        <div class="p-6 border-b border-white border-opacity-5">
+            <div class="flex items-center gap-3">
+                <div class="w-9 h-9 bg-accent-500 bg-opacity-20 rounded-xl flex items-center justify-center border border-accent-500 border-opacity-30">
+                    <svg class="w-5 h-5 text-accent-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/>
+                    </svg>
+                </div>
+                <span class="font-bold text-white">HH Parser</span>
+            </div>
+        </div>
+
+        <!-- Навигация -->
+        <nav class="flex-1 p-4 space-y-1">
+            <a href="dashboard.html" class="nav-item active flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-medium bg-accent-500 bg-opacity-15 text-accent-400 border border-accent-500 border-opacity-20">
+                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10"/>
+                </svg>
+                Вакансии
+            </a>
+            <a href="analytics.html" class="nav-item flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-medium text-gray-400 hover:text-white hover:bg-white hover:bg-opacity-5 transition-all">
+                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"/>
+                </svg>
+                Аналитика
+            </a>
+            <a href="filters.html" class="nav-item flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-medium text-gray-400 hover:text-white hover:bg-white hover:bg-opacity-5 transition-all">
+                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 4a1 1 0 011-1h16a1 1 0 011 1v2.586a1 1 0 01-.293.707l-6.414 6.414a1 1 0 00-.293.707V17l-4 4v-6.586a1 1 0 00-.293-.707L3.293 7.293A1 1 0 013 6.586V4z"/>
+                </svg>
+                Фильтры
+            </a>
+        </nav>
+
+        <!-- Профиль -->
+        <div class="p-4 border-t border-white border-opacity-5">
+            <div class="flex items-center gap-3 px-2 py-2">
+                <div class="w-8 h-8 bg-accent-500 bg-opacity-30 rounded-full flex items-center justify-center text-accent-400 text-sm font-bold" id="user-avatar">U</div>
+                <div class="flex-1 min-w-0">
+                    <div class="text-sm font-medium text-white truncate" id="user-name">Загрузка...</div>
+                    <div class="text-xs text-gray-500 truncate" id="user-email"></div>
+                </div>
+                <button onclick="logout()" class="text-gray-500 hover:text-red-400 transition-colors" title="Выйти">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"/>
+                    </svg>
+                </button>
+            </div>
+        </div>
+    </aside>
+
+    <!-- Основной контент -->
+    <main class="ml-64 min-h-screen">
+
+        <!-- Хедер -->
+        <header class="sticky top-0 z-30 bg-dark-900 bg-opacity-80 backdrop-blur border-b border-white border-opacity-5 px-8 py-4">
+            <div class="flex items-center justify-between">
+                <div>
+                    <h1 class="text-xl font-bold text-white">Вакансии</h1>
+                    <p class="text-sm text-gray-500">Найдено и проанализировано AI</p>
+                </div>
+                <div class="flex items-center gap-3">
+                    <span id="vacancy-count" class="text-sm text-gray-400"></span>
+                    <button onclick="loadVacancies()" class="flex items-center gap-2 px-4 py-2 bg-accent-500 bg-opacity-20 hover:bg-opacity-30 text-accent-400 rounded-xl text-sm font-medium transition-all border border-accent-500 border-opacity-20">
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"/>
+                        </svg>
+                        Обновить
+                    </button>
+                </div>
+            </div>
+        </header>
+
+        <div class="p-8">
+
+            <!-- Метрики -->
+            <div class="grid grid-cols-4 gap-4 mb-8">
+                <div class="metric-card bg-dark-800 rounded-2xl p-5 border border-white border-opacity-5">
+                    <div class="text-gray-400 text-sm mb-1">Всего вакансий</div>
+                    <div class="text-2xl font-bold text-white" id="metric-total">—</div>
+                    <div class="text-xs text-gray-500 mt-1">за всё время</div>
+                </div>
+                <div class="metric-card bg-dark-800 rounded-2xl p-5 border border-white border-opacity-5">
+                    <div class="text-gray-400 text-sm mb-1">Средний AI Score</div>
+                    <div class="text-2xl font-bold text-accent-400" id="metric-score">—</div>
+                    <div class="text-xs text-gray-500 mt-1">из 100 возможных</div>
+                </div>
+                <div class="metric-card bg-dark-800 rounded-2xl p-5 border border-white border-opacity-5">
+                    <div class="text-gray-400 text-sm mb-1">Средняя зарплата</div>
+                    <div class="text-2xl font-bold text-green-400" id="metric-salary">—</div>
+                    <div class="text-xs text-gray-500 mt-1">из тех что указали</div>
+                </div>
+                <div class="metric-card bg-dark-800 rounded-2xl p-5 border border-white border-opacity-5">
+                    <div class="text-gray-400 text-sm mb-1">Удалённых</div>
+                    <div class="text-2xl font-bold text-blue-400" id="metric-remote">—</div>
+                    <div class="text-xs text-gray-500 mt-1">вакансий</div>
+                </div>
+            </div>
+
+            <!-- Фильтры -->
+            <div class="bg-dark-800 rounded-2xl p-5 mb-6 border border-white border-opacity-5">
+                <div class="grid grid-cols-4 gap-4">
+                    <div>
+                        <label class="block text-xs text-gray-500 mb-2 uppercase tracking-wide">Поиск</label>
+                        <input id="filter-search" type="text" placeholder="Python, React..."
+                            oninput="debounceFilter()"
+                            class="w-full bg-dark-700 border border-white border-opacity-10 rounded-xl px-3 py-2.5 text-sm text-white placeholder-gray-600 focus:outline-none focus:border-accent-500 focus:border-opacity-50 transition-all"/>
+                    </div>
+                    <div>
+                        <label class="block text-xs text-gray-500 mb-2 uppercase tracking-wide">Мин. Score</label>
+                        <div class="relative">
+                            <input id="filter-score" type="range" min="0" max="100" value="0" step="5"
+                                oninput="updateScoreLabel(); debounceFilter()"
+                                class="w-full accent-indigo-500"/>
+                            <div class="flex justify-between text-xs text-gray-500 mt-1">
+                                <span>0%</span>
+                                <span id="score-label" class="text-accent-400 font-medium">0%</span>
+                                <span>100%</span>
+                            </div>
+                        </div>
+                    </div>
+                    <div>
+                        <label class="block text-xs text-gray-500 mb-2 uppercase tracking-wide">Уровень</label>
+                        <select id="filter-level" onchange="debounceFilter()"
+                            class="w-full bg-dark-700 border border-white border-opacity-10 rounded-xl px-3 py-2.5 text-sm text-white focus:outline-none focus:border-accent-500 focus:border-opacity-50 transition-all">
+                            <option value="">Все уровни</option>
+                            <option value="Junior">Junior</option>
+                            <option value="Middle">Middle</option>
+                            <option value="Senior">Senior</option>
+                            <option value="Lead">Lead</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label class="block text-xs text-gray-500 mb-2 uppercase tracking-wide">Показать</label>
+                        <select id="filter-limit" onchange="debounceFilter()"
+                            class="w-full bg-dark-700 border border-white border-opacity-10 rounded-xl px-3 py-2.5 text-sm text-white focus:outline-none focus:border-accent-500 focus:border-opacity-50 transition-all">
+                            <option value="20">20 вакансий</option>
+                            <option value="50" selected>50 вакансий</option>
+                            <option value="100">100 вакансий</option>
+                        </select>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Список вакансий -->
+            <div id="vacancies-list" class="space-y-3">
+                <!-- Скелетон загрузки -->
+                <div class="skeleton-card bg-dark-800 rounded-2xl p-5 border border-white border-opacity-5 animate-pulse">
+                    <div class="flex items-start justify-between">
+                        <div class="flex-1">
+                            <div class="h-5 bg-dark-700 rounded w-2/3 mb-3"></div>
+                            <div class="h-4 bg-dark-700 rounded w-1/2 mb-2"></div>
+                            <div class="h-4 bg-dark-700 rounded w-1/3"></div>
+                        </div>
+                        <div class="h-12 w-16 bg-dark-700 rounded-xl ml-4"></div>
+                    </div>
+                </div>
+                <div class="skeleton-card bg-dark-800 rounded-2xl p-5 border border-white border-opacity-5 animate-pulse">
+                    <div class="flex items-start justify-between">
+                        <div class="flex-1">
+                            <div class="h-5 bg-dark-700 rounded w-3/4 mb-3"></div>
+                            <div class="h-4 bg-dark-700 rounded w-2/5 mb-2"></div>
+                            <div class="h-4 bg-dark-700 rounded w-1/4"></div>
+                        </div>
+                        <div class="h-12 w-16 bg-dark-700 rounded-xl ml-4"></div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Пустое состояние -->
+            <div id="empty-state" class="hidden text-center py-20">
+                <div class="text-6xl mb-4">🔍</div>
+                <h3 class="text-xl font-medium text-white mb-2">Вакансий пока нет</h3>
+                <p class="text-gray-500 mb-6">Создай фильтры и дождись первого цикла парсера</p>
+                <a href="filters.html" class="inline-flex items-center gap-2 px-6 py-3 bg-accent-500 hover:bg-accent-600 text-white rounded-xl font-medium transition-all">
+                    Создать фильтр
+                </a>
+            </div>
+
+        </div>
+    </main>
+
+    <script src="js/api.js"></script>
+    <script src="js/dashboard.js"></script>
+</body>
+</html>

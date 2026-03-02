@@ -1,5 +1,3 @@
-version: "3.9"
-
 networks:
   hh-network:
     driver: bridge
@@ -74,14 +72,14 @@ services:
 
   api-gateway:
     build:
-      context: ./services/api-gateway
+      context: ./services/api_gateway
       dockerfile: Dockerfile
     container_name: hh-api-gateway
     restart: unless-stopped
     env_file:
       - .env
     environment:
-      - PYTHONPATH=/app:/workspace/shared
+      - PYTHONPATH=/app:/workspace
     ports:
       - "8000:8000"
     networks:
@@ -92,13 +90,15 @@ services:
       redis:
         condition: service_healthy
     volumes:
-      - ./services/api-gateway:/app
+      - ./services/api_gateway:/app
       - ./shared:/workspace/shared
+      - ./alembic.ini:/app/alembic.ini
+      - ./migrations:/app/migrations
     command: uvicorn app.main:app --host 0.0.0.0 --port 8000 --reload
 
   parser-service:
     build:
-      context: ./services/parser-service
+      context: ./services/parser_service
       dockerfile: Dockerfile
     container_name: hh-parser
     restart: unless-stopped
@@ -116,13 +116,13 @@ services:
       rabbitmq:
         condition: service_healthy
     volumes:
-      - ./services/parser-service:/app
+      - ./services/parser_service:/app
       - ./shared:/workspace/shared
     command: python -m app.worker
 
   ai-analyzer:
     build:
-      context: ./services/ai-analyzer
+      context: ./services/ai_analyzer
       dockerfile: Dockerfile
     container_name: hh-ai-analyzer
     restart: unless-stopped
@@ -138,13 +138,13 @@ services:
       rabbitmq:
         condition: service_healthy
     volumes:
-      - ./services/ai-analyzer:/app
+      - ./services/ai_analyzer:/app
       - ./shared:/workspace/shared
     command: python -m app.worker
 
   notifier-service:
     build:
-      context: ./services/notifier-service
+      context: ./services/notifier_service
       dockerfile: Dockerfile
     container_name: hh-notifier
     restart: unless-stopped
@@ -160,13 +160,13 @@ services:
       rabbitmq:
         condition: service_healthy
     volumes:
-      - ./services/notifier-service:/app
+      - ./services/notifier_service:/app
       - ./shared:/workspace/shared
     command: python -m app.worker
 
   telegram-bot:
     build:
-      context: ./services/telegram-bot
+      context: ./services/telegram_bot
       dockerfile: Dockerfile
     container_name: hh-telegram-bot
     restart: unless-stopped
@@ -181,28 +181,19 @@ services:
       - api-gateway
       - redis
     volumes:
-      - ./services/telegram-bot:/app
+      - ./services/telegram_bot:/app
       - ./shared:/workspace/shared
     command: python -m app.main
 
-  dashboard:
+  frontend:
     build:
-      context: ./services/dashboard
+      context: ./services/frontend
       dockerfile: Dockerfile
-    container_name: hh-dashboard
+    container_name: hh-frontend
     restart: unless-stopped
-    env_file:
-      - .env
-    environment:
-      - PYTHONPATH=/app:/workspace
-      - API_URL=http://api-gateway:8000
     ports:
-      - "8501:8501"
+      - "3000:80"
     networks:
       - hh-network
     depends_on:
       - api-gateway
-    volumes:
-      - ./services/dashboard:/app
-      - ./shared:/workspace/shared
-    command: streamlit run app/main.py --server.port=8501 --server.address=0.0.0.0

@@ -1,0 +1,108 @@
+/* Кастомные стили поверх Tailwind */
+
+* {
+    box-sizing: border-box;
+}
+
+/* Скроллбар */
+::-webkit-scrollbar {
+    width: 6px;
+    height: 6px;
+}
+::-webkit-scrollbar-track {
+    background: #1a1d27;
+}
+::-webkit-scrollbar-thumb {
+    background: #2d3348;
+    border-radius: 3px;
+}
+::-webkit-scrollbar-thumb:hover {
+    background: #6366f1;
+}
+
+/* Плавные переходы для input */
+.input-field {
+    transition: border-color 0.2s, box-shadow 0.2s;
+}
+.input-field:focus {
+    box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.1);
+}
+
+/* Карточка вакансии */
+.vacancy-card {
+    transition: border-color 0.2s, transform 0.2s, box-shadow 0.2s;
+}
+.vacancy-card:hover {
+    border-color: rgba(99, 102, 241, 0.3);
+    transform: translateY(-1px);
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+}
+
+/* Score индикатор */
+.score-ring {
+    transition: stroke-dashoffset 0.6s ease;
+}
+
+/* Анимация появления */
+@keyframes fadeIn {
+    from { opacity: 0; transform: translateY(8px); }
+    to   { opacity: 1; transform: translateY(0); }
+}
+.fade-in {
+    animation: fadeIn 0.3s ease forwards;
+}
+
+/* Тег технологии */
+.tech-tag {
+    display: inline-flex;
+    align-items: center;
+    padding: 2px 8px;
+    background: rgba(99, 102, 241, 0.1);
+    border: 1px solid rgba(99, 102, 241, 0.2);
+    border-radius: 6px;
+    font-size: 12px;
+    color: #818cf8;
+    font-weight: 500;
+}
+
+/* Метрика */
+.metric-card {
+    transition: border-color 0.2s, transform 0.2s;
+}
+.metric-card:hover {
+    border-color: rgba(99, 102, 241, 0.2);
+    transform: translateY(-1px);
+}
+
+/* Toast уведомления */
+.toast {
+    position: fixed;
+    bottom: 24px;
+    right: 24px;
+    z-index: 9999;
+    padding: 12px 20px;
+    border-radius: 12px;
+    font-size: 14px;
+    font-weight: 500;
+    animation: slideIn 0.3s ease;
+    max-width: 320px;
+}
+.toast-success {
+    background: rgba(34, 197, 94, 0.15);
+    border: 1px solid rgba(34, 197, 94, 0.3);
+    color: #4ade80;
+}
+.toast-error {
+    background: rgba(239, 68, 68, 0.15);
+    border: 1px solid rgba(239, 68, 68, 0.3);
+    color: #f87171;
+}
+@keyframes slideIn {
+    from { opacity: 0; transform: translateX(20px); }
+    to   { opacity: 1; transform: translateX(0); }
+}
+
+/* Chart.js тёмная тема */
+canvas {
+    max-height: 100%;
+}

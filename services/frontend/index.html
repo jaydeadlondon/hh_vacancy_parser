@@ -1,0 +1,154 @@
+<!DOCTYPE html>
+<html lang="ru" class="dark">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>HH Parser — Найди лучшую вакансию</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    colors: {
+                        dark: {
+                            900: '#0f1117',
+                            800: '#1a1d27',
+                            700: '#21263a',
+                            600: '#2d3348',
+                        },
+                        accent: {
+                            500: '#6366f1',
+                            600: '#4f46e5',
+                            400: '#818cf8',
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+    <link rel="stylesheet" href="css/style.css">
+</head>
+<body class="bg-dark-900 text-gray-100 min-h-screen flex items-center justify-center">
+
+    <!-- Фон с градиентом -->
+    <div class="fixed inset-0 bg-dark-900 overflow-hidden pointer-events-none">
+        <div class="absolute top-[-20%] left-[-10%] w-[600px] h-[600px] bg-accent-500 opacity-5 rounded-full blur-3xl"></div>
+        <div class="absolute bottom-[-20%] right-[-10%] w-[500px] h-[500px] bg-indigo-700 opacity-5 rounded-full blur-3xl"></div>
+    </div>
+
+    <div class="relative z-10 w-full max-w-md px-4">
+
+        <!-- Лого -->
+        <div class="text-center mb-8">
+            <div class="inline-flex items-center justify-center w-16 h-16 bg-accent-500 bg-opacity-20 rounded-2xl mb-4 border border-accent-500 border-opacity-30">
+                <svg class="w-8 h-8 text-accent-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/>
+                </svg>
+            </div>
+            <h1 class="text-3xl font-bold text-white">HH Parser</h1>
+            <p class="text-gray-400 mt-2">Умный поиск вакансий с AI анализом</p>
+        </div>
+
+        <!-- Табы -->
+        <div class="flex bg-dark-800 rounded-xl p-1 mb-6 border border-white border-opacity-5">
+            <button id="tab-login" onclick="switchTab('login')"
+                class="tab-btn flex-1 py-2 rounded-lg text-sm font-medium transition-all duration-200 bg-accent-500 text-white">
+                Войти
+            </button>
+            <button id="tab-register" onclick="switchTab('register')"
+                class="tab-btn flex-1 py-2 rounded-lg text-sm font-medium transition-all duration-200 text-gray-400 hover:text-white">
+                Регистрация
+            </button>
+        </div>
+
+        <!-- Форма входа -->
+        <div id="form-login" class="bg-dark-800 rounded-2xl p-6 border border-white border-opacity-5 shadow-2xl">
+            <div id="login-error" class="hidden mb-4 p-3 bg-red-500 bg-opacity-20 border border-red-500 border-opacity-30 rounded-lg text-red-400 text-sm"></div>
+
+            <div class="space-y-4">
+                <div>
+                    <label class="block text-sm text-gray-400 mb-2">Имя пользователя</label>
+                    <input id="login-username" type="text" placeholder="username"
+                        class="input-field w-full bg-dark-700 border border-white border-opacity-10 rounded-xl px-4 py-3 text-white placeholder-gray-600 focus:outline-none focus:border-accent-500 focus:border-opacity-60 transition-all"/>
+                </div>
+                <div>
+                    <label class="block text-sm text-gray-400 mb-2">Пароль</label>
+                    <div class="relative">
+                        <input id="login-password" type="password" placeholder="••••••••"
+                            class="input-field w-full bg-dark-700 border border-white border-opacity-10 rounded-xl px-4 py-3 text-white placeholder-gray-600 focus:outline-none focus:border-accent-500 focus:border-opacity-60 transition-all"/>
+                        <button onclick="togglePassword('login-password')" class="absolute right-3 top-3.5 text-gray-500 hover:text-gray-300">
+                            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/>
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/>
+                            </svg>
+                        </button>
+                    </div>
+                </div>
+
+                <button onclick="handleLogin()"
+                    class="w-full bg-accent-500 hover:bg-accent-600 text-white font-medium py-3 rounded-xl transition-all duration-200 flex items-center justify-center gap-2 mt-2">
+                    <span id="login-btn-text">Войти</span>
+                    <svg id="login-spinner" class="hidden animate-spin w-4 h-4" fill="none" viewBox="0 0 24 24">
+                        <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                        <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"></path>
+                    </svg>
+                </button>
+            </div>
+        </div>
+
+        <!-- Форма регистрации -->
+        <div id="form-register" class="hidden bg-dark-800 rounded-2xl p-6 border border-white border-opacity-5 shadow-2xl">
+            <div id="register-error" class="hidden mb-4 p-3 bg-red-500 bg-opacity-20 border border-red-500 border-opacity-30 rounded-lg text-red-400 text-sm"></div>
+            <div id="register-success" class="hidden mb-4 p-3 bg-green-500 bg-opacity-20 border border-green-500 border-opacity-30 rounded-lg text-green-400 text-sm"></div>
+
+            <div class="space-y-4">
+                <div>
+                    <label class="block text-sm text-gray-400 mb-2">Имя пользователя</label>
+                    <input id="reg-username" type="text" placeholder="username"
+                        class="input-field w-full bg-dark-700 border border-white border-opacity-10 rounded-xl px-4 py-3 text-white placeholder-gray-600 focus:outline-none focus:border-accent-500 focus:border-opacity-60 transition-all"/>
+                </div>
+                <div>
+                    <label class="block text-sm text-gray-400 mb-2">Email</label>
+                    <input id="reg-email" type="email" placeholder="you@example.com"
+                        class="input-field w-full bg-dark-700 border border-white border-opacity-10 rounded-xl px-4 py-3 text-white placeholder-gray-600 focus:outline-none focus:border-accent-500 focus:border-opacity-60 transition-all"/>
+                </div>
+                <div>
+                    <label class="block text-sm text-gray-400 mb-2">Пароль</label>
+                    <input id="reg-password" type="password" placeholder="••••••••"
+                        class="input-field w-full bg-dark-700 border border-white border-opacity-10 rounded-xl px-4 py-3 text-white placeholder-gray-600 focus:outline-none focus:border-accent-500 focus:border-opacity-60 transition-all"/>
+                </div>
+
+                <button onclick="handleRegister()"
+                    class="w-full bg-accent-500 hover:bg-accent-600 text-white font-medium py-3 rounded-xl transition-all duration-200 flex items-center justify-center gap-2 mt-2">
+                    <span id="register-btn-text">Создать аккаунт</span>
+                    <svg id="register-spinner" class="hidden animate-spin w-4 h-4" fill="none" viewBox="0 0 24 24">
+                        <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                        <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"></path>
+                    </svg>
+                </button>
+            </div>
+        </div>
+
+        <!-- Фичи -->
+        <div class="grid grid-cols-3 gap-3 mt-6">
+            <div class="bg-dark-800 bg-opacity-60 rounded-xl p-3 text-center border border-white border-opacity-5">
+                <div class="text-accent-400 text-xl mb-1">🤖</div>
+                <div class="text-xs text-gray-400">AI анализ</div>
+            </div>
+            <div class="bg-dark-800 bg-opacity-60 rounded-xl p-3 text-center border border-white border-opacity-5">
+                <div class="text-accent-400 text-xl mb-1">⚡</div>
+                <div class="text-xs text-gray-400">Авто-поиск</div>
+            </div>
+            <div class="bg-dark-800 bg-opacity-60 rounded-xl p-3 text-center border border-white border-opacity-5">
+                <div class="text-accent-400 text-xl mb-1">📊</div>
+                <div class="text-xs text-gray-400">Аналитика</div>
+            </div>
+        </div>
+
+    </div>
+
+    <script src="js/api.js"></script>
+    <script src="js/auth.js"></script>
+</body>
+</html>

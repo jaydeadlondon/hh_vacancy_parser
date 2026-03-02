@@ -1,8 +1,11 @@
+from __future__ import annotations
+
 from aiogram import F, Router
 from aiogram.filters import CommandStart
 from aiogram.fsm.context import FSMContext
 from aiogram.fsm.state import State, StatesGroup
 from aiogram.types import CallbackQuery, Message
+
 from app.api.client import APIClient
 from app.keyboards.inline import get_main_menu_keyboard, get_start_keyboard
 from shared.utils.logger import get_logger
@@ -24,9 +27,7 @@ class LoginStates(StatesGroup):
 
 @router.message(CommandStart())
 async def cmd_start(message: Message, state: FSMContext) -> None:
-    """Приветствие — проверяем авторизован ли пользователь"""
     await state.clear()
-
     state_data = await state.get_data()
     token = state_data.get("jwt_token")
 
@@ -65,8 +66,7 @@ async def show_help(callback: CallbackQuery) -> None:
         "/start — главное меню\n"
         "/filters — управление фильтрами\n"
         "/top10 — топ вакансий\n"
-        "/search — поиск вакансий\n"
-        "/profile — мой профиль\n\n"
+        "/search — поиск вакансий\n\n"
         "<b>Как работает бот:</b>\n"
         "1. Создай фильтр с нужными параметрами\n"
         "2. Каждый час парсер ищет новые вакансии\n"
@@ -80,6 +80,51 @@ async def show_help(callback: CallbackQuery) -> None:
         parse_mode="HTML",
     )
     await callback.answer()
+
+
+# ─── Профиль ──────────────────────────────────────────────────────────────────
+
+
+@router.callback_query(F.data == "profile")
+async def show_profile(callback: CallbackQuery, state: FSMContext) -> None:
+    state_data = await state.get_data()
+    token = state_data.get("jwt_token")
+
+    client = APIClient(token=token)
+    result = await client.get_me()
+
+    if result["status"] != 200:
+        await callback.answer("❌ Ошибка загрузки профиля", show_alert=True)
+        return
+
+    user = result["data"]
+
+    # Проверяем telegram_chat_id правильно
+    tg_id = user.get("telegram_chat_id")
+    tg_username = user.get("telegram_username")
+
+    if tg_id:
+        tg_str = f"@{tg_username}" if tg_username else f"ID: {tg_id}"
+    else:
+        tg_str = "не привязан"
+
+    text = (
+        f"👤 <b>Мой профиль</b>\n\n"
+        f"🔑 Логин: <b>{user['username']}</b>\n"
+        f"📧 Email: <b>{user['email']}</b>\n"
+        f"💬 Telegram: <b>{tg_str}</b>\n"
+        f"✅ Активен: <b>{'Да' if user['is_active'] else 'Нет'}</b>\n"
+    )
+
+    await callback.message.edit_text(
+        text,
+        reply_markup=get_main_menu_keyboard(),
+        parse_mode="HTML",
+    )
+    await callback.answer()
+
+
+# ─── Регистрация ──────────────────────────────────────────────────────────────
 
 
 @router.callback_query(F.data == "register")
@@ -97,7 +142,6 @@ async def start_register(callback: CallbackQuery, state: FSMContext) -> None:
 @router.message(RegisterStates.waiting_username)
 async def register_username(message: Message, state: FSMContext) -> None:
     username = message.text.strip() if message.text else ""
-
     if len(username) < 3:
         await message.answer("❌ Слишком короткое имя. Минимум 3 символа.")
         return
@@ -105,7 +149,7 @@ async def register_username(message: Message, state: FSMContext) -> None:
     await state.update_data(reg_username=username)
     await state.set_state(RegisterStates.waiting_email)
     await message.answer(
-        f"✅ Имя: <b>{username}</b>\n\nШаг 2/3: Введи email адрес",
+        f"✅ Имя: <b>{username}</b>\n\n" "Шаг 2/3: Введи email адрес",
         parse_mode="HTML",
     )
 
@@ -113,7 +157,6 @@ async def register_username(message: Message, state: FSMContext) -> None:
 @router.message(RegisterStates.waiting_email)
 async def register_email(message: Message, state: FSMContext) -> None:
     email = message.text.strip() if message.text else ""
-
     if "@" not in email or "." not in email:
         await message.answer("❌ Некорректный email. Попробуй ещё раз.")
         return
@@ -121,7 +164,7 @@ async def register_email(message: Message, state: FSMContext) -> None:
     await state.update_data(reg_email=email)
     await state.set_state(RegisterStates.waiting_password)
     await message.answer(
-        "Шаг 3/3: Придумай пароль\n<i>Минимум 8 символов</i>",
+        "Шаг 3/3: Придумай пароль\n" "<i>Минимум 8 символов</i>",
         parse_mode="HTML",
     )
 
@@ -129,7 +172,6 @@ async def register_email(message: Message, state: FSMContext) -> None:
 @router.message(RegisterStates.waiting_password)
 async def register_password(message: Message, state: FSMContext) -> None:
     password = message.text.strip() if message.text else ""
-
     await message.delete()
 
     if len(password) < 8:
@@ -150,10 +192,11 @@ async def register_password(message: Message, state: FSMContext) -> None:
             await state.update_data(jwt_token=token)
 
             authed_client = APIClient(token=token)
-            await authed_client.link_telegram(
+            tg_result = await authed_client.link_telegram(
                 telegram_chat_id=message.chat.id,
                 telegram_username=message.from_user.username,
             )
+            logger.info(f"Привязка Telegram: {tg_result}")
 
         await state.set_state(None)
         await message.answer(
@@ -168,15 +211,18 @@ async def register_password(message: Message, state: FSMContext) -> None:
         error = result["data"].get("detail", "Неизвестная ошибка")
         await state.set_state(None)
         await message.answer(
-            f"❌ Ошибка регистрации: {error}\n\nПопробуй ещё раз /start",
+            f"❌ Ошибка регистрации: {error}\n\nПопробуй ещё раз /start"
         )
+
+
+# ─── Авторизация ──────────────────────────────────────────────────────────────
 
 
 @router.callback_query(F.data == "login")
 async def start_login(callback: CallbackQuery, state: FSMContext) -> None:
     await state.set_state(LoginStates.waiting_username)
     await callback.message.edit_text(
-        "🔑 <b>Вход в аккаунт</b>\n\nВведи имя пользователя:",
+        "🔑 <b>Вход в аккаунт</b>\n\n" "Введи имя пользователя:",
         parse_mode="HTML",
     )
     await callback.answer()
@@ -206,18 +252,19 @@ async def login_password(message: Message, state: FSMContext) -> None:
         await state.set_state(None)
 
         authed_client = APIClient(token=token)
-        await authed_client.link_telegram(
+        tg_result = await authed_client.link_telegram(
             telegram_chat_id=message.chat.id,
             telegram_username=message.from_user.username,
         )
+        logger.info(f"Привязка Telegram при логине: {tg_result}")
 
         await message.answer(
-            "✅ <b>Вход выполнен!</b>\n\nЧто хочешь сделать?",
+            "✅ <b>Вход выполнен!</b>\n\n" "Что хочешь сделать?",
             reply_markup=get_main_menu_keyboard(),
             parse_mode="HTML",
         )
     else:
         await state.set_state(None)
         await message.answer(
-            "❌ Неверный логин или пароль.\nПопробуй ещё раз /start",
+            "❌ Неверный логин или пароль.\n" "Попробуй ещё раз /start",
         )

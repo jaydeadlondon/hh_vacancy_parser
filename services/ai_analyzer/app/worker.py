@@ -86,14 +86,22 @@ class AIAnalyzerWorker:
         except Exception as e:
             logger.error(f"Ошибка обработки сообщения: {e}", exc_info=True)
 
-    async def _analyze(self, vacancy_id: int, user_id: int, filter_id: int) -> None:
+    async def _analyze(
+        self,
+        vacancy_id: int,
+        user_id: int,
+        filter_id: int,
+    ) -> None:
         """Основная логика анализа"""
         async with self._session_factory() as db:
             try:
+                await asyncio.sleep(2)
+
                 vacancy_result = await db.execute(
                     select(Vacancy).where(Vacancy.id == vacancy_id)
                 )
                 vacancy = vacancy_result.scalar_one_or_none()
+
                 if not vacancy:
                     logger.error(f"Вакансия {vacancy_id} не найдена в БД")
                     return

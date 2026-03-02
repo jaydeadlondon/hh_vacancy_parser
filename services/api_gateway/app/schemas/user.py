@@ -33,7 +33,7 @@ class UserLogin(BaseModel):
 
 
 class UserUpdateTelegram(BaseModel):
-    telegram_chat_id: str
+    telegram_chat_id: int
     telegram_username: str | None = None
 
 

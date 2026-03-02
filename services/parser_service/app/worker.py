@@ -105,11 +105,12 @@ class ParserWorker:
         )
 
         hh_params = build_hh_params(user_filter)
-
         vacancies = await hh.get_all_vacancies(hh_params)
         logger.info(f"Получено вакансий от HH: {len(vacancies)}")
 
         new_count = 0
+        to_publish = []
+
         for vacancy_data in vacancies:
             hh_id = str(vacancy_data.get("id", ""))
             if not hh_id:
@@ -133,15 +134,25 @@ class ParserWorker:
             db.add(analysis)
             await db.flush()
 
-            await self.publisher.publish_vacancy(
-                vacancy_id=vacancy.id,
-                user_id=user.id,
-                filter_id=user_filter.id,
+            to_publish.append(
+                {
+                    "vacancy_id": vacancy.id,
+                    "user_id": user.id,
+                    "filter_id": user_filter.id,
+                }
             )
 
             new_count += 1
 
         await db.commit()
+
+        for item in to_publish:
+            await self.publisher.publish_vacancy(
+                vacancy_id=item["vacancy_id"],
+                user_id=item["user_id"],
+                filter_id=item["filter_id"],
+            )
+
         logger.info(
             f"✅ Фильтр [{user_filter.id}]: "
             f"новых вакансий {new_count} из {len(vacancies)}"
