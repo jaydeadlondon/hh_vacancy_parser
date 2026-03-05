@@ -328,6 +328,6 @@ alembic upgrade head
 - `.github/workflows/ci.yml` — сборка, тесты, базовая проверка кода.
 - `.github/workflows/cd.yml` — развёртывание (детали зависят от целевой инфраструктуры).
 
-## Author
+## License
 
-jaydeadlondon
+MIT License
