@@ -1,5 +1,7 @@
 ## HH Parser
 
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
+
 **HH Parser** — это микросервисная система для умного поиска вакансий на HH.ru с использованием AI‑анализа (GigaChat), автоматического парсинга по фильтрам пользователей и удобными уведомлениями в Telegram и веб‑интерфейсе.
 
 Система сама:
